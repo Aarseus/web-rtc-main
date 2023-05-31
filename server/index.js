@@ -4,8 +4,13 @@ const socketIO = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
+const allowedOrigin = ['192.168.1.91', '192.168.1.81']
 const io = socketIO(server, {
-  cors: true
+  cors: {
+    allowedOrigin: ['*'],
+    allowedHeaders: ['*'],
+    allowedMethods: ['*']
+  }
 });
 const port = 8000; // Replace with your desired port number
 
