@@ -6,7 +6,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 // import Try from './pages/Try';
 // import Feed from './pages/Feed';
 import New from './pages/New';
-import HomeSecurity from './pages/HomeSecurity';
+// import HomeSecurity from './pages/HomeSecurity';
 
 const MyRoutes = () => {
   return (
@@ -18,7 +18,7 @@ const MyRoutes = () => {
         <Route path='/try' element={<Try/>}/>
         <Route path='/feed' element={<Feed/>}/> */}
         <Route path='/new' element={<New/>}/>
-        <Route path='/' element={<HomeSecurity/>}/>
+        {/* <Route path='/' element={<HomeSecurity/>}/> */}
     </Routes>
       
     </BrowserRouter>
