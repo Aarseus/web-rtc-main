@@ -1,7 +1,7 @@
 import ReactPlayer from "react-player";
 import Typography from "@mui/material/Typography";
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@mui/material";
+import { Box, Button, FormControl, FormLabel, TextField } from "@mui/material";
 import peer from "../service/createPeer";
 import { useSocket } from "../context/SocketProvider";
 
@@ -11,9 +11,11 @@ const Room = () => {
   const [myStream, setMyStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
 
-  const handleUserJoined = useCallback(({ emailId, id }) => {
-    console.log(`emailId ${emailId} joined room`);
+  const [remoteUser, setRemoteUser] = useState(null);
+
+  const handleUserJoined = useCallback(({ id, email }) => {
     setRemoteSocketId(id);
+    setRemoteUser(email);
   }, []);
 
   const handleCallUser = useCallback(async () => {
@@ -36,6 +38,8 @@ const Room = () => {
       setMyStream(stream);
       console.log(`Incoming Call`, from, offer);
       const ans = await peer.getAnswer(offer);
+      console.log('this is offer',offer)
+      console.log('this is asnwededwc', ans)
       socket.emit("call:accepted", { to: from, ans });
     },
     [socket]
@@ -114,24 +118,77 @@ const Room = () => {
   const handleCloseCall = () => {
     setMyStream(null);
   };
-
+  const handleSubmit = () => {
+    socket.emit("room:join", { emailId: userEmail, roomId: 12 });
+    setRoomVisible(true);
+  };
+  const [userEmail, setUserEmail] = useState(null);
+  const [roomVisible, setRoomVisible] = useState(false);
+  const handleEmailChange = (e) => {
+    setUserEmail(e.target.value);
+  };
   return (
-    <div>
-      <Typography variant="h2">Room Page</Typography>
-      {!remoteSocketId ? (
-        <Typography variant="h5">No one in Room</Typography>
-      ) : (
-        <Typography variant="h5">Connected</Typography>
+    <>
+      <Box sx={{ padding: "3rem" }}>
+        <Typography variant="h5" textAlign={"center"}>
+          Submit Your Email to join room
+        </Typography>
+        <FormControl
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            height: "5rem",
+            justifyContent: "center",
+            gap: "2rem",
+            alignItems: "center",
+          }}
+        >
+          <TextField
+            label="Email"
+            variant="outlined"
+            type="email"
+            onChange={handleEmailChange}
+          />
+          <Button
+            type="submit"
+            // disabled={!userEmail?.length}
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
+        </FormControl>
+      </Box>
+
+      <Typography variant="h5" textAlign={"center"}>
+        Participants in the room:
+      </Typography>
+      <Typography variant="h6" textAlign={"center"}>
+        {userEmail ?? "0"}
+      </Typography>
+      {remoteUser && (
+        <Typography variant="h6" textAlign={"center"}>
+          {remoteUser}
+        </Typography>
       )}
-      {!!remoteSocketId && !myStream && (
-        <Button onClick={handleCallUser}>Call</Button>
+
+      {!!remoteSocketId && (
+        <Box display="flex" justifyContent={"center"} margin={"20px auto"}>
+          <Button
+            onClick={handleCallUser}
+            variant="contained"
+            // disabled={!remoteUser}
+          >
+            Start Call
+          </Button>
+        </Box>
       )}
+
       {!!myStream && (
-        <>
+        <Box border={"1px solid black"}>
           <Typography variant="h4">Your Video</Typography>
           <ReactPlayer
-            height={"300px"}
-            width={"500px"}
+            height={"100px"}
+            width={"300px"}
             playing
             muted
             url={myStream}
@@ -140,10 +197,10 @@ const Room = () => {
           <Button color="warning" onClick={handleCloseCall}>
             Close
           </Button>
-        </>
+        </Box>
       )}
       {!!remoteStream && (
-        <>
+        <Box border={"1px solid black"}>
           <Typography variant="h4">Their Video</Typography>
           <ReactPlayer
             height={"300px"}
@@ -155,9 +212,9 @@ const Room = () => {
           <Button color="warning" onClick={() => setRemoteStream(null)}>
             Close
           </Button>
-        </>
+        </Box>
       )}
-    </div>
+    </>
   );
 };
 

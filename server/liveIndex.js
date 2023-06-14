@@ -27,6 +27,25 @@ app.use(express.json());
 
 // socket request
 io.on('connection', (socket) => {
+
+  socket.on('client:connect',(aa)=>{
+    console.log('client connected')
+  })
+  socket.on('server:connect',()=>{
+    console.log('server connected')
+  })
+  
+  socket.on('client:offer',(clientOffer)=>{
+    console.log('client offer')
+    io.emit('client:offer:incoming', clientOffer)
+  })
+
+  socket.on('server:client:answer',(serverAns)=>{
+    console.log('server answer received')
+    io.emit('server:ans:client',serverAns)
+  })
+
+
   socket.on('room:join', (data) => {
     const { emailId, roomId } = data;
     emailToSocketIdMap.set(emailId, socket.id);
@@ -39,10 +58,6 @@ io.on('connection', (socket) => {
   socket.on('server:user:call', ({ to, offer }) => {
     io.to(to).emit('incoming:call', { from: socket.id, offer });
   });
-
-socket.on('offer:to:server',(offer)=>{
-  setOffer(offer)
-})
 
   socket.on('call:accepted', ({ to, ans }) => {
     io.to(to).emit('call:accepted', { from: socket.id, ans });
